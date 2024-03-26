@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "*.ejs": "html",
+        "strings.h": "c",
+        "in.h": "c",
+        "socket.h": "c",
+        "unistd.h": "c",
+        "stdlib.h": "c",
+        "http_message.h": "c"
+    }
+}

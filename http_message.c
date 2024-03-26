@@ -12,21 +12,24 @@ int generate_response(char* buffer, const char *body, int bodySize, const char *
     strcat(buffer, CRLF);
 
     // TODO: 헤더 별도 분리
-    strcat(buffer, "Content-Type: ");
-    strcat(buffer, content_type);
-    strcat(buffer, CRLF);
+    if(content_type != NULL) {
+        strcat(buffer, "Content-Type: ");
+        strcat(buffer, content_type);
+        strcat(buffer, CRLF);
 
-    strcat(buffer, "Content-Length: ");
-    snprintf(temp, sizeof(temp), "%d", bodySize);
-    strcat(buffer, temp);
-    strcat(buffer, CRLF);
-    strcat(buffer, CRLF);
+        strcat(buffer, "Content-Length: ");
+        snprintf(temp, sizeof(temp), "%d", bodySize);
+        strcat(buffer, temp);
+        strcat(buffer, CRLF);
+    }
 
+    strcat(buffer, CRLF);
 
     int initSize = strlen(buffer);
+
+    if(body == NULL) return initSize;
+
     memcpy(buffer + initSize, body, bodySize);
-
-
     return initSize + bodySize;
 }
 
@@ -37,7 +40,6 @@ struct request_message* parse_request(char* requestBuffer) {
     strncpy(startLine, ptr, strlen(ptr));
 
     message->startLine = parse_startLine(startLine);
-
     while(ptr != NULL) {
         ptr = strtok(NULL, "\n");
     }

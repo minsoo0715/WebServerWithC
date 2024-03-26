@@ -5,6 +5,7 @@
 #define STARTLINE_404_NOT_FOUND "HTTP/1.1 404 NOT FOUND"
 
 #define TEXT_HTML "text/html"
+#define TEXT_PLAIN "text/plain"
 #define FAVICON "image/vnd.microsoft.icon"
 #define IMAGE_JPEG "image/jpeg"
 

@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "http/common.h"
+
 #include "common/constant.h"
 #include "common/util.h"
-#include "http/common.h"
 
 const char* get_contentType(char* fileName) {
     const char *dot = strrchr(fileName, '.');

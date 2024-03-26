@@ -3,12 +3,13 @@
 #include <netinet/in.h> // constants and structures needed for internet domain addresses, e.g. sockaddr_in
 #include <stdlib.h>
 #include <strings.h>
-#include <unistd.h> // ISO C99 and later do not support implicit function declarations (error in clang-1500.3.9.4 build (Mac))
+#include <unistd.h> // ISO C99 and later do not support implicit function declarations
+
+#include "http/message.h"
+#include "http/common.h"
 
 #include "common/error.h"
 #include "common/constant.h"
-#include "http/message.h"
-#include "http/common.h"
 #include "common/util.h"
 #include "common/socket.h"
 
@@ -43,6 +44,7 @@ int main(int argc, char *argv[])
     clilen = sizeof(cli_addr);
 
     int n, fileSize, bodySize;
+    const char* contentType;
 
     while (1) {
         char* fileBuffer;
@@ -54,7 +56,7 @@ int main(int argc, char *argv[])
         */
         newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
         if (newsockfd < 0)
-        error("ERROR on accept");
+            error("ERROR on accept");
 
         bzero(responseBuffer, BUF_SIZE);
         bzero(buffer, BUF_SIZE);
@@ -63,27 +65,25 @@ int main(int argc, char *argv[])
         if (n < 0)
             error("ERROR reading from socket");
 
-        printf("message: \n%s", buffer);
+        printf("incoming message: \n%s\n", buffer);
 
         struct request_message* request = parse_request(buffer);
         char* request_uri = request->startLine->uri;
 
         printf("uri: %s\n", request_uri);
 
-        if(!strcmp(request_uri, "/")) {
+        if(!strcmp(request_uri, "/"))
             strcpy(request_uri, "/index.html");
-        }
 
-        const char* contentType = get_contentType(request_uri);
-
-        // TODO: 해당 확장자가 없을 때 처리
-        if(contentType == NULL) {
-            strcpy(request_uri, "/index.html");
-            contentType = TEXT_HTML;
-        }
-
+        contentType = get_contentType(request_uri);
         fileSize = load_file(request_uri, &fileBuffer);
-        bodySize = generate_response(responseBuffer, fileBuffer,fileSize, contentType, STARTLINE_200_OK);
+
+        if(contentType == NULL || fileSize == -1) {
+            bodySize = generate_response(responseBuffer, NULL, -1, NULL, STARTLINE_404_NOT_FOUND);
+        } else {
+            bodySize = generate_response(responseBuffer, fileBuffer,fileSize, contentType, STARTLINE_200_OK);
+        }
+
         // TODO: 파일이 없을 때 처리
 
         // NOTE: write function returns the number of bytes actually sent out. this might be less than the number you told it to send
@@ -91,7 +91,11 @@ int main(int argc, char *argv[])
 
         if (n < 0)
             error("ERROR writing to socket");
+
         close(newsockfd);
+        if(fileSize != -1 || contentType != NULL) {
+            free(fileBuffer);
+        }
     }
 
     close(sockfd);

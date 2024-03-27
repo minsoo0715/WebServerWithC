@@ -2,7 +2,9 @@
 #include <sys/socket.h> // definitions of structures needed for sockets, e.g. sockaddr
 #include <netinet/in.h> // constants and structures needed for internet domain addresses, e.g. sockaddr_in
 #include <stdlib.h>
+#include <string.h>
 #include <strings.h>
+#include <signal.h>
 #include <unistd.h> // ISO C99 and later do not support implicit function declarations
 
 #include "http/message.h"
@@ -13,11 +15,20 @@
 #include "common/util.h"
 #include "common/socket.h"
 
+int sockfd = -1;
 
+void OnSignal(int sig) {
+    printf("\nShutting down the server...\n");
+    signal(sig, SIG_IGN);
+    if(sockfd != -1)
+        close(sockfd);
+    exit(0);
+}
 
 int main(int argc, char *argv[])
 {
-    int sockfd, newsockfd; // descriptors return from socket and accept system calls
+    signal(SIGINT, OnSignal); // for detecting Ctrl+C, and shutdown the server
+    int newsockfd; // descriptors return from socket and accept system calls
     int portno;            // port number
     socklen_t clilen;
 
@@ -102,7 +113,4 @@ int main(int argc, char *argv[])
             free(request);
         }
     }
-
-    close(sockfd);
-    return 0;
 }

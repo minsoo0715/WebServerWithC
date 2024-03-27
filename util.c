@@ -29,10 +29,8 @@ const char* get_contentType(char* fileName) {
 
 int load_file(const char * fileName, char** fileBuffer)
 {
-    char path[BUF_SIZE];
     int fileSize;
-
-    bzero(path, BUF_SIZE);
+    char* path = (char*)malloc(200);
 
     strcat(path, RESOURCE_ROOT);
     strcat(path, fileName);
@@ -49,5 +47,6 @@ int load_file(const char * fileName, char** fileBuffer)
     fread(*fileBuffer, fileSize, 1, fp);
 
     fclose(fp);
+    free(path);
     return fileSize;
 }

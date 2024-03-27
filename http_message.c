@@ -6,7 +6,7 @@
 #include "common/constant.h"
 
 int generate_response(char* buffer, const char *body, int bodySize, const char *content_type, const char *start_line) {
-    char temp[BUF_SIZE];
+    char temp[50];
 
     strcat(buffer, start_line);
     strcat(buffer, CRLF);
@@ -35,14 +35,16 @@ int generate_response(char* buffer, const char *body, int bodySize, const char *
 
 struct request_message* parse_request(char* requestBuffer) {
     struct request_message *message = malloc(sizeof(struct  request_message));
-    char startLine[BUF_SIZE];
+    char* startLine;
     char* ptr = strtok(requestBuffer, "\n");
+    startLine = (char*)malloc(strlen(ptr)+1);
     strncpy(startLine, ptr, strlen(ptr));
 
     message->startLine = parse_startLine(startLine);
     while(ptr != NULL) {
         ptr = strtok(NULL, "\n");
     }
+    free(startLine);
     return message;
 }
 

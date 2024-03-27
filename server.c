@@ -13,14 +13,16 @@
 #include "common/util.h"
 #include "common/socket.h"
 
+
+
 int main(int argc, char *argv[])
 {
     int sockfd, newsockfd; // descriptors return from socket and accept system calls
     int portno;            // port number
     socklen_t clilen;
 
-    char buffer[BUF_SIZE];
-    char responseBuffer[BUF_SIZE];
+    char* buffer = (char*)malloc(BUF_SIZE);
+    char* responseBuffer = (char*)malloc(BUF_SIZE);
 
     /*sockaddr_in: Structure Containing an Internet Address*/
     struct sockaddr_in serv_addr, cli_addr;
@@ -57,26 +59,28 @@ int main(int argc, char *argv[])
         newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
         if (newsockfd < 0)
             error("ERROR on accept");
-
         bzero(responseBuffer, BUF_SIZE);
         bzero(buffer, BUF_SIZE);
 
-        n = read(newsockfd, buffer, BUF_SIZE - 1); // Read is a block function. It will read at most BUF_SIZE - 1
+        n = read(newsockfd, buffer, BUF_SIZE); // Read is a block function. It will read at most BUF_SIZE - 1
         if (n < 0)
             error("ERROR reading from socket");
 
         printf("incoming message: \n%s\n", buffer);
 
         struct request_message* request = parse_request(buffer);
+
         char* request_uri = request->startLine->uri;
 
         printf("uri: %s\n", request_uri);
+
 
         if(!strcmp(request_uri, "/"))
             strcpy(request_uri, "/index.html");
 
         contentType = get_contentType(request_uri);
         fileSize = load_file(request_uri, &fileBuffer);
+
 
         if(contentType == NULL || fileSize == -1) {
             bodySize = generate_response(responseBuffer, NULL, -1, NULL, STARTLINE_404_NOT_FOUND);
@@ -95,6 +99,8 @@ int main(int argc, char *argv[])
         close(newsockfd);
         if(fileSize != -1 || contentType != NULL) {
             free(fileBuffer);
+            free(request->startLine);
+            free(request);
         }
     }
 

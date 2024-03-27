@@ -16,6 +16,12 @@ const char* get_contentType(char* fileName) {
         return IMAGE_JPEG;
     } else if(strcmp(dot, ".ico") == 0) {
         return FAVICON;
+    } else if(strcmp(dot, ".pdf") == 0) {
+        return PDF;
+    } else if(strcmp(dot, ".mp3") == 0) {
+        return MP3;
+    } else if(strcmp(dot, ".gif") == 0) {
+        return GIF;
     } else {
         return NULL;
     }

@@ -8,6 +8,9 @@
 #define TEXT_PLAIN "text/plain"
 #define FAVICON "image/vnd.microsoft.icon"
 #define IMAGE_JPEG "image/jpeg"
+#define PDF "application/pdf"
+#define MP3 "audio/mp3"
+#define GIF "image/gif"
 
 
 #endif

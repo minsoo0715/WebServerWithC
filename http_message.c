@@ -51,11 +51,11 @@ struct request_message* parse_request(char* requestBuffer) {
 struct start_line* parse_startLine(char* buffer) {
     struct start_line *line = malloc(sizeof(struct start_line));
     char* ptr = strtok(buffer, " ");
-    strncpy(line->method, ptr, strlen(ptr));
+    strncpy(line->method, ptr, strlen(ptr) + 1);
     ptr = strtok(NULL, " ");
-    strncpy(line->uri, ptr, strlen(ptr));
+    strncpy(line->uri, ptr, strlen(ptr) + 1);
     ptr = strtok(NULL, " ");
-    strncpy(line->version, ptr, strlen(ptr));
+    strncpy(line->version, ptr, strlen(ptr) + 1);
 
     return line;
 }

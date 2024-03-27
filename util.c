@@ -31,6 +31,7 @@ int load_file(const char * fileName, char** fileBuffer)
 {
     int fileSize;
     char* path = (char*)malloc(200);
+    bzero(path, 200);
 
     strcat(path, RESOURCE_ROOT);
     strcat(path, fileName);

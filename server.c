@@ -98,7 +98,6 @@ int main(int argc, char *argv[])
 
         close(newsockfd);
         if(fileSize != -1 || contentType != NULL) {
-            free(fileBuffer);
             free(request->startLine);
             free(request);
         }

@@ -5,7 +5,7 @@
 #include <strings.h>
 #include <signal.h>
 #include <sys/socket.h> // definitions of structures needed for sockets, e.g. sockaddr
-#include <unistd.h> // ISO C99 and later do not support implicit function declarations
+#include <unistd.h> // Include to use bzero()
 
 #include "http/message.h"
 #include "http/common.h"
@@ -29,13 +29,15 @@ void OnSignal(int sig) {
 
 int main(int argc, char *argv[])
 {
-    signal(SIGINT, OnSignal); // for detecting Ctrl+C, and shutdown the server
-    int newsockfd; // descriptors return from socket and accept system calls
-    int portno;            // port number
+    int newsockfd;         // Descriptors return from socket and accept system calls
+    int portno;            // Port number
     socklen_t clilen;
 
     char* buffer = (char*)malloc(BUF_SIZE); // buffer for receiving request message
     char* responseBuffer = (char*)malloc(BUF_SIZE); // buffer for sending response message
+
+    int n, fileSize, bodySize;
+    const char* contentType;
 
     struct sockaddr_in serv_addr, cli_addr; // sock_addr_in : Structure Containing an Internet Address
 
@@ -45,26 +47,28 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    portno = atoi(argv[1]); // Get Port number (convert string to integer)
-    init(&serv_addr, portno); // initialize serv_addr with port number
+    printf("\nConcurrent Web Server using BSD Sockets (Server)\n");
 
-    sockfd = get_socket();
+    signal(SIGINT, OnSignal); // When Ctrl+C pressed, shutdown the server
+
+    portno = atoi(argv[1]);   // Get Port number (convert string to integer)
+    init(&serv_addr, portno); // Initialize serv_addr with port number
+
+    sockfd = get_socket();        // Create socket and get identifier
 
     if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) // Bind the socket to the server address
         error("ERROR on binding");
 
     listen(sockfd, 5); // Listen for socket connections. Backlog queue (connections to wait) is 5
+    printf("Listen on port %d\n", portno);
 
     clilen = sizeof(cli_addr);
-
-    int n, fileSize, bodySize;
-    const char* contentType;
 
     while (1) {
         char* fileBuffer;
 
         /*
-            accept function:
+            accept():
                 1) Block until a new connection is established
                 2) the new socket descriptor will be used for subsequent communication with the newly connected client.
         */
@@ -74,7 +78,8 @@ int main(int argc, char *argv[])
         bzero(responseBuffer, BUF_SIZE);
         bzero(buffer, BUF_SIZE);
 
-        n = read(newsockfd, buffer, BUF_SIZE - 1); // Read is a block function. It will read at most BUF_SIZE - 1
+        // read() is a block function. It will read at most BUF_SIZE - 1
+        n = read(newsockfd, buffer, BUF_SIZE - 1);
         if (n < 0)
             error("ERROR reading from socket");
 
@@ -105,7 +110,7 @@ int main(int argc, char *argv[])
             bodySize = generate_response(responseBuffer, fileBuffer,fileSize, contentType, STARTLINE_200_OK);
         }
 
-        // write function returns the number of bytes actually sent out. this might be less than the number you told it to send
+        // Write function returns the number of bytes actually sent out. this might be less than the number you told it to send
         n = write(newsockfd, responseBuffer, bodySize);
 
         if (n < 0)
@@ -114,6 +119,7 @@ int main(int argc, char *argv[])
         // Close connection with client
         close(newsockfd);
 
+        // If there is no file response we don't need to free them
         if(fileSize != -1 || contentType != NULL) {
             free(request->startLine);
             free(request);

@@ -9,7 +9,7 @@
  * Generate response with body(with size), contentType, startLine and copy to buffer
  */
 int generate_response(char* buffer, const char *body, int bodySize, const char *content_type, const char *start_line) {
-    char temp[50];
+    char temp[10];
 
     // Write start_line (with CRLF)
     strcat(buffer, start_line);

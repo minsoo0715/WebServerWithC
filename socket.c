@@ -10,9 +10,9 @@ Return sockfd after validating socket
 */
 int get_socket() {
     /*
-    Create a new socket
-    AF_INET: Address Domain is Internet
-    SOCK_STREAM: Socket Type is STREAM Socket
+        Create a new socket:
+            AF_INET: Address Domain is Internet
+            SOCK_STREAM: Socket Type is STREAM Socket
     */
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     int option = 1;
@@ -25,7 +25,7 @@ int get_socket() {
 }
 
 /*
- * initialize sockaddr_in and return it
+ * Initialize sockaddr_in and return it
 */
 void init(struct sockaddr_in *serv_addr, int port) {
     bzero((char *)serv_addr, sizeof(*serv_addr)); // init serv_addr

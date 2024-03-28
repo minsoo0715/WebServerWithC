@@ -3,7 +3,7 @@
 
 #include "common/error.h"
 
-/* Functions for throwing error */
+/* Function for throwing error */
 void error(char *msg)
 {
    perror(msg);

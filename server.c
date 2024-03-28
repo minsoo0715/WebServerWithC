@@ -1,22 +1,24 @@
-#include <stdio.h>
-#include <sys/socket.h> // definitions of structures needed for sockets, e.g. sockaddr
 #include <netinet/in.h> // constants and structures needed for internet domain addresses, e.g. sockaddr_in
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include <signal.h>
+#include <sys/socket.h> // definitions of structures needed for sockets, e.g. sockaddr
 #include <unistd.h> // ISO C99 and later do not support implicit function declarations
 
 #include "http/message.h"
 #include "http/common.h"
-
-#include "common/error.h"
 #include "common/constant.h"
-#include "common/util.h"
+#include "common/error.h"
 #include "common/socket.h"
+#include "common/util.h"
 
 int sockfd = -1;
 
+/*
+ * Define actions when Ctrl+C pressed
+ */
 void OnSignal(int sig) {
     printf("\nShutting down the server...\n");
     signal(sig, SIG_IGN);
@@ -32,11 +34,10 @@ int main(int argc, char *argv[])
     int portno;            // port number
     socklen_t clilen;
 
-    char* buffer = (char*)malloc(BUF_SIZE);
-    char* responseBuffer = (char*)malloc(BUF_SIZE);
+    char* buffer = (char*)malloc(BUF_SIZE); // buffer for receiving request message
+    char* responseBuffer = (char*)malloc(BUF_SIZE); // buffer for sending response message
 
-    /*sockaddr_in: Structure Containing an Internet Address*/
-    struct sockaddr_in serv_addr, cli_addr;
+    struct sockaddr_in serv_addr, cli_addr; // sock_addr_in : Structure Containing an Internet Address
 
     if (argc < 2)
     {
@@ -44,8 +45,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    portno = atoi(argv[1]);
-    init(&serv_addr, portno);
+    portno = atoi(argv[1]); // Get Port number (convert string to integer)
+    init(&serv_addr, portno); // initialize serv_addr with port number
 
     sockfd = get_socket();
 
@@ -73,41 +74,46 @@ int main(int argc, char *argv[])
         bzero(responseBuffer, BUF_SIZE);
         bzero(buffer, BUF_SIZE);
 
-        n = read(newsockfd, buffer, BUF_SIZE); // Read is a block function. It will read at most BUF_SIZE - 1
+        n = read(newsockfd, buffer, BUF_SIZE - 1); // Read is a block function. It will read at most BUF_SIZE - 1
         if (n < 0)
             error("ERROR reading from socket");
 
+        // Print request message
         printf("incoming message: \n%s\n", buffer);
 
+        // Parse request
         struct request_message* request = parse_request(buffer);
 
+        // Get request uri for routing
         char* request_uri = request->startLine->uri;
 
         printf("uri: %s\n", request_uri);
 
-
+        // If requested with a "/", it will send index.html file.
         if(!strcmp(request_uri, "/"))
             strcpy(request_uri, "/index.html");
 
+        // Get contentType from uri(=fileName)
         contentType = get_contentType(request_uri);
+        // Load file to fileBuffer, and get the fileSize
         fileSize = load_file(request_uri, &fileBuffer);
 
-
+        // If there is no file or can't detect contentType, return 404 response
         if(contentType == NULL || fileSize == -1) {
             bodySize = generate_response(responseBuffer, NULL, -1, NULL, STARTLINE_404_NOT_FOUND);
-        } else {
+        } else { // Generate response by several parameters
             bodySize = generate_response(responseBuffer, fileBuffer,fileSize, contentType, STARTLINE_200_OK);
         }
 
-        // TODO: 파일이 없을 때 처리
-
-        // NOTE: write function returns the number of bytes actually sent out. this might be less than the number you told it to send
+        // write function returns the number of bytes actually sent out. this might be less than the number you told it to send
         n = write(newsockfd, responseBuffer, bodySize);
 
         if (n < 0)
             error("ERROR writing to socket");
 
+        // Close connection with client
         close(newsockfd);
+
         if(fileSize != -1 || contentType != NULL) {
             free(request->startLine);
             free(request);

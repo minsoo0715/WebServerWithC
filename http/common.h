@@ -1,3 +1,4 @@
+/* Header for saving constant about http (start_line, mimetype, etc.) */
 #ifndef __HTTP__COMMON_H__
 #define __HTTP__COMMON_H__
 

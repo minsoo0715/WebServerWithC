@@ -27,9 +27,10 @@ void write_header(char* buffer, const char* key, const char* value) {
 /*
  * Write Body
  */
-void write_body(char* buffer, const char* bodyBuffer, int initSize, int bodySize) {
-    strcat(buffer, CRLF);
-    memcpy(buffer+initSize, body, bodySize); // file can have '\0', so you need to use memcpy
+int write_body(char* buffer, const char* bodyBuffer, int bodySize) {
+    int initSize = strlen(buffer);
+    memcpy(buffer + initSize, bodyBuffer, bodySize); // file can have '\0', so you need to use memcpy
+    return initSize + bodySize;
 }
 
 /*
@@ -48,12 +49,11 @@ int generate_response(char* buffer, const char *body, int bodySize, const char *
         write_header(buffer, "Content-Length", temp);
     }
 
+    strcat(buffer, CRLF);
 
-    int initSize = strlen(buffer); // Buffer size before appending fileBuffer
-    if(body == NULL) return initSize;
+    if(body == NULL) return strlen(buffer);
 
-    write_body(buffer, body, initSize, bodySize);
-    return initSize + bodySize;
+    return write_body(buffer, body, bodySize);
 }
 
 /*

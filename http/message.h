@@ -19,7 +19,7 @@ struct request_message {
 };
 void write_start_line(char* buffer, const char* start_line);
 void write_header(char* buffer, const char* key, const char* value);
-void write_body(char* buffer, const char* bodyBuffer, int initSize, int bodySize);
+int write_body(char* buffer, const char* bodyBuffer, int bodySize);
 
 int generate_response(char* buffer, const char *body, int bodySize, const char *content_type, const char *start_line);
 struct request_message* parse_request(char* requestBuffer);

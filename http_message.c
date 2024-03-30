@@ -6,33 +6,53 @@
 #include "http/message.h"
 
 /*
+ * Write start_line (with CRLF)
+ */
+void write_start_line(char* buffer, const char* start_line) {
+
+    strcat(buffer, start_line);
+    strcat(buffer, CRLF);
+}
+
+/*
+ * Write Header with (key, value) set
+ */
+void write_header(char* buffer, const char* key, const char* value) {
+    strcat(buffer, key);
+    strcat(buffer, ": ");
+    strcat(buffer, value);
+    strcat(buffer, CRLF);
+}
+
+/*
+ * Write Body
+ */
+void write_body(char* buffer, const char* bodyBuffer, int initSize, int bodySize) {
+    strcat(buffer, CRLF);
+    memcpy(buffer+initSize, body, bodySize); // file can have '\0', so you need to use memcpy
+}
+
+/*
  * Generate response with body(with size), contentType, startLine and copy to buffer
  */
 int generate_response(char* buffer, const char *body, int bodySize, const char *content_type, const char *start_line) {
-    char temp[10];
 
-    // Write start_line (with CRLF)
-    strcat(buffer, start_line);
-    strcat(buffer, CRLF);
+    write_start_line(buffer, start_line);
 
     // TODO: 헤더 별도 분리
     if(content_type != NULL) {
-        strcat(buffer, "Content-Type: ");
-        strcat(buffer, content_type);
-        strcat(buffer, CRLF);
+        write_header(buffer, "Content-Type", content_type);
 
-        strcat(buffer, "Content-Length: ");
+        char temp[10];
         snprintf(temp, 9, "%d", bodySize);
-        strcat(buffer, temp);
-        strcat(buffer, CRLF);
+        write_header(buffer, "Content-Length", temp);
     }
 
-    strcat(buffer, CRLF);
 
     int initSize = strlen(buffer); // Buffer size before appending fileBuffer
-    if(body == NULL) return strlen(buffer);
+    if(body == NULL) return initSize;
 
-    memcpy(buffer + initSize, body, bodySize); // file can have '\0', so you need to use memcpy
+    write_body(buffer, body, initSize, bodySize);
     return initSize + bodySize;
 }
 

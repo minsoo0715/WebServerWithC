@@ -15,6 +15,8 @@
 #include "common/util.h"
 
 int sockfd = -1;
+char* buffer;
+char* responseBuffer;
 
 /*
  * Define actions when Ctrl+C pressed
@@ -22,6 +24,10 @@ int sockfd = -1;
 void OnSignal(int sig) {
     printf("\nShutting down the server...\n");
     signal(sig, SIG_IGN);
+
+    free(buffer);
+    free(responseBuffer);
+
     if(sockfd != -1)
         close(sockfd);
     exit(0);
@@ -33,8 +39,8 @@ int main(int argc, char *argv[])
     int portno;            // Port number
     socklen_t clilen;
 
-    char* buffer = (char*)malloc(BUF_SIZE); // buffer for receiving request message
-    char* responseBuffer = (char*)malloc(BUF_SIZE); // buffer for sending response message
+    buffer = (char*)malloc(BUF_SIZE); // buffer for receiving request message
+    responseBuffer = (char*)malloc(BUF_SIZE); // buffer for sending response message
 
     int n, fileSize, bodySize;
     const char* contentType;

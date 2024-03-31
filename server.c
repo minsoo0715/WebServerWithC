@@ -122,7 +122,10 @@ int main(int argc, char *argv[])
         pushHeader(&responseHeaders, "Server", "gcc version 11.4.0 (Ubuntu 11.4.0-1ubuntu1~22.04)");
         pushHeader(&responseHeaders, "Cache-Control", "no-store");
         pushHeader(&responseHeaders, "Access-Control-Allow-Origin", "*");
-        pushHeader(&responseHeaders, "Content-Language", "ko,en");
+
+        if(strcmp(contentType, IMAGE_JPEG) && strcmp(contentType, GIF) && strcmp(contentType, MP3) && strcmp(contentType, FAVICON)) {
+            pushHeader(&responseHeaders, "Content-Language", "ko,en");
+        }
 
         struct response_start_line start_line;
 

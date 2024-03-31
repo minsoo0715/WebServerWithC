@@ -13,6 +13,11 @@ struct start_line {
     char version[9];
 };
 
+struct http_header {
+    char key[64];
+    char value[512];
+};
+
 /* Define request message */
 struct request_message {
     struct start_line* startLine;

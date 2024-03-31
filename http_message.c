@@ -56,20 +56,52 @@ int generate_response(char* buffer, const char *body, int bodySize, const char *
     return write_body(buffer, body, bodySize);
 }
 
+struct http_header* parse_single_header(char* line) {
+    struct http_header* header = (struct http_header*)malloc(sizeof(struct http_header));
+
+    int len = strlen(line);
+    bzero(header->key, 64);
+    bzero(header->value, 512);
+    int d = -1;
+    for(int i = 0; i<len; ++i) {
+        if(line[i] == ':') {
+            d = i;
+            break;
+        }
+    }
+
+    if(d == -1 || d == 0 || d == len-1) return;
+
+    strncpy(header->key, line, d);
+    if(line[d+1] == ' ') {
+        strncpy(header->value, line+d+2, strlen(line+d+1));
+    } else {
+        strncpy(header->value, line+d+1, strlen(line+d+1));
+    }
+
+    return header;
+}
+
 /*
  * parse request, and load result to buffer
  */
 struct request_message* parse_request(char* requestBuffer) {
     struct request_message *message = malloc(sizeof(struct  request_message));
-
+    char* temp = malloc(strlen(requestBuffer));
     char* ptr = strtok(requestBuffer, "\n");       // strtok : change delim to '\0', and return the pointer
 
     char* startLine = (char*)malloc(strlen(ptr)+1);
     strncpy(startLine, ptr, strlen(ptr));    // first line is start_line
 
+    strcpy(temp, requestBuffer+strlen(startLine)+1);
     message->startLine = parse_start_line_of_request(startLine);
+
+    ptr = strtok(temp, CRLF);
+
+    // TODO: 파싱한 헤더를 저장할 자료구조 고안
     while(ptr != NULL) { // Continue parsing
-        ptr = strtok(NULL, "\n");
+        parse_single_header(ptr);
+        ptr = strtok(NULL, CRLF);
     }
 
     free(startLine);

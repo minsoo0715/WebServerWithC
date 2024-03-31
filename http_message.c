@@ -3,15 +3,39 @@
 #include <string.h>
 
 #include "common/constant.h"
+#include "http/common.h"
 #include "http/header.h"
 #include "http/message.h"
+
+void get_start_line_by_status(struct response_start_line* start_line, unsigned short status_code) {
+    const char* status_text;
+
+    if(status_code == 200) {
+        status_text = HTTP_STATUS_TEXT_200;
+    } else if(status_code == 404) {
+        status_text = HTTP_STATUS_TEXT_404;
+    }
+
+    strcpy(start_line->version, HTTP_VERSION);
+    strcpy(start_line->status_text, status_text);
+    start_line->statusCode = status_code;
+}
+
 
 /*
  * Write start_line (with CRLF)
  */
-void write_start_line(char* buffer, const char* start_line) {
+void write_start_line(char* buffer, const struct response_start_line* start_line) {
 
-    strcat(buffer, start_line);
+    strcat(buffer, start_line->version);
+    strcat(buffer, " ");
+
+    char temp[8];
+    snprintf(temp, 6, "%u", start_line->statusCode);
+    strcat(buffer, temp);
+    strcat(buffer, " ");
+
+    strcat(buffer, start_line->status_text);
     strcat(buffer, CRLF);
 }
 
@@ -37,7 +61,7 @@ int write_body(char* buffer, const char* bodyBuffer, int bodySize) {
 /*
  * Generate response with body(with size), contentType, startLine and copy to buffer
  */
-int generate_response(char* buffer, const char *body, int bodySize, const struct http_header_array* headerArray, const char *start_line) {
+int generate_response(char* buffer, const char *body, int bodySize, const struct http_header_array* headerArray, const struct response_start_line* start_line) {
 
     write_start_line(buffer, start_line);
 
@@ -106,8 +130,8 @@ struct request_message* parse_request(char* requestBuffer) {
 }
 
 /* parse start line of request message, and return the start_line struct */
-struct start_line* parse_start_line_of_request(char* buffer) {
-    struct start_line *line = malloc(sizeof(struct start_line));
+struct request_start_line* parse_start_line_of_request(char* buffer) {
+    struct request_start_line *line = malloc(sizeof(struct request_start_line));
     char* ptr = strtok(buffer, " "); // Execute strtok() with ' '
     strncpy(line->method, ptr, strlen(ptr) + 1);
 

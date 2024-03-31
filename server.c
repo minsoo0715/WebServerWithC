@@ -124,16 +124,15 @@ int main(int argc, char *argv[])
         pushHeader(&responseHeaders, "Access-Control-Allow-Origin", "*");
         pushHeader(&responseHeaders, "Content-Language", "ko,en");
 
-        const char* start_line;
+        struct response_start_line start_line;
 
         // If there is no file or can't detect contentType, return 404 response
         if(contentType == NULL || fileSize == -1) {
             fileSize = load_str("The page you requested could not be found", &fileBuffer);
             contentType = TEXT_PLAIN;
-
-            start_line = STARTLINE_404_NOT_FOUND;
+            get_start_line_by_status(&start_line, 404);
         } else { // Generate response by several parameters
-            start_line = STARTLINE_200_OK;
+            get_start_line_by_status(&start_line, 200);
         }
 
         pushHeader(&responseHeaders, "Content-Type", contentType);
@@ -142,7 +141,7 @@ int main(int argc, char *argv[])
         snprintf(temp, 9, "%d", fileSize);
         pushHeader(&responseHeaders, "Content-Length", temp);
 
-        bodySize = generate_response(responseBuffer, fileBuffer, fileSize, &responseHeaders, start_line);
+        bodySize = generate_response(responseBuffer, fileBuffer, fileSize, &responseHeaders, &start_line);
         // Write function returns the number of bytes actually sent out. this might be less than the number you told it to send
         n = write(newsockfd, responseBuffer, bodySize);
 
@@ -152,7 +151,6 @@ int main(int argc, char *argv[])
         // Close connection with client
         close(newsockfd);
 
-        // If there is no file response we don't need to free them
         free(request->startLine);
         freeHeaders(request->headers);
         free(request->headers);

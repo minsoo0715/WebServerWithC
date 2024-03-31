@@ -2,8 +2,9 @@
 #ifndef __HTTP__COMMON_H__
 #define __HTTP__COMMON_H__
 
-#define STARTLINE_200_OK "HTTP/1.1 200 OK"
-#define STARTLINE_404_NOT_FOUND "HTTP/1.1 404 NOT FOUND"
+#define HTTP_VERSION "HTTP/1.1"
+#define HTTP_STATUS_TEXT_404 "NOT FOUND"
+#define HTTP_STATUS_TEXT_200 "OK"
 
 #define TEXT_HTML "text/html"
 #define TEXT_PLAIN "text/plain"

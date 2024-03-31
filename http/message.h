@@ -27,10 +27,10 @@ struct request_message {
 };
 
 void write_start_line(char* buffer, const char* start_line);
-void write_header(char* buffer, const char* key, const char* value);
+void write_header(char* buffer, const struct http_header* header);
 int write_body(char* buffer, const char* bodyBuffer, int bodySize);
 
-int generate_response(char* buffer, const char *body, int bodySize, const char *content_type, const char *start_line);
+int generate_response(char* buffer, const char *body, int bodySize, const struct http_header_array* headerArray, const char *start_line);
 struct request_message* parse_request(char* requestBuffer);
 void parse_single_header(char* line, struct http_header* header);
 int get_newline_pos(char* buffer, int start, int len);

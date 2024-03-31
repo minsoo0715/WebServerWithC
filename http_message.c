@@ -18,10 +18,10 @@ void write_start_line(char* buffer, const char* start_line) {
 /*
  * Write Header with (key, value) set
  */
-void write_header(char* buffer, const char* key, const char* value) {
-    strcat(buffer, key);
+void write_header(char* buffer, const struct http_header* header) {
+    strcat(buffer, header->key);
     strcat(buffer, ": ");
-    strcat(buffer, value);
+    strcat(buffer, header->value);
     strcat(buffer, CRLF);
 }
 
@@ -37,21 +37,16 @@ int write_body(char* buffer, const char* bodyBuffer, int bodySize) {
 /*
  * Generate response with body(with size), contentType, startLine and copy to buffer
  */
-int generate_response(char* buffer, const char *body, int bodySize, const char *content_type, const char *start_line) {
+int generate_response(char* buffer, const char *body, int bodySize, const struct http_header_array* headerArray, const char *start_line) {
 
     write_start_line(buffer, start_line);
 
-    // TODO: 헤더 별도 분리
-    if(content_type != NULL) {
-        write_header(buffer, "Content-Type", content_type);
-
-        char temp[10];
-        snprintf(temp, 9, "%d", bodySize);
-        write_header(buffer, "Content-Length", temp);
+    for(int i = 0; i<headerArray->n; ++i) {
+        struct http_header h = headerArray->store[i];
+        write_header(buffer, &h);
     }
 
     strcat(buffer, CRLF);
-
     if(body == NULL) return strlen(buffer);
 
     return write_body(buffer, body, bodySize);

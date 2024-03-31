@@ -114,13 +114,35 @@ int main(int argc, char *argv[])
         // Load file to fileBuffer, and get the fileSize
         fileSize = load_file(request_uri, &fileBuffer);
 
+
+        struct http_header_array responseHeaders;
+
+        initHeaderArray(&responseHeaders);
+
+        pushHeader(&responseHeaders, "Server", "gcc version 11.4.0 (Ubuntu 11.4.0-1ubuntu1~22.04)");
+        pushHeader(&responseHeaders, "Cache-Control", "no-store");
+        pushHeader(&responseHeaders, "Access-Control-Allow-Origin", "*");
+        pushHeader(&responseHeaders, "Content-Language", "ko,en");
+
+        const char* start_line;
+
         // If there is no file or can't detect contentType, return 404 response
         if(contentType == NULL || fileSize == -1) {
-            bodySize = generate_response(responseBuffer, NULL, -1, NULL, STARTLINE_404_NOT_FOUND);
+            fileSize = load_str("The page you requested could not be found", &fileBuffer);
+            contentType = TEXT_PLAIN;
+
+            start_line = STARTLINE_404_NOT_FOUND;
         } else { // Generate response by several parameters
-            bodySize = generate_response(responseBuffer, fileBuffer,fileSize, contentType, STARTLINE_200_OK);
+            start_line = STARTLINE_200_OK;
         }
 
+        pushHeader(&responseHeaders, "Content-Type", contentType);
+
+        char temp[10];
+        snprintf(temp, 9, "%d", fileSize);
+        pushHeader(&responseHeaders, "Content-Length", temp);
+
+        bodySize = generate_response(responseBuffer, fileBuffer, fileSize, &responseHeaders, start_line);
         // Write function returns the number of bytes actually sent out. this might be less than the number you told it to send
         n = write(newsockfd, responseBuffer, bodySize);
 
@@ -131,11 +153,9 @@ int main(int argc, char *argv[])
         close(newsockfd);
 
         // If there is no file response we don't need to free them
-        if(fileSize != -1 || contentType != NULL) {
-            free(request->startLine);
-            freeHeaders(request->headers);
-            free(request->headers);
-            free(request);
-        }
+        free(request->startLine);
+        freeHeaders(request->headers);
+        free(request->headers);
+        free(request);
     }
 }

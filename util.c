@@ -58,3 +58,11 @@ int load_file(const char * fileName, char** fileBuffer)
     free(path);    // Deallocate path
     return fileSize;  // Return fileSize
 }
+
+int load_str(const char * contents, char** fileBuffer) {
+    int len = strlen(contents);
+    *fileBuffer = (char*) malloc(len);
+    strcpy(*fileBuffer, contents);
+    return len;
+}
+

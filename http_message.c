@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "common/constant.h"
+#include "http/header.h"
 #include "http/message.h"
 
 /*
@@ -56,8 +57,7 @@ int generate_response(char* buffer, const char *body, int bodySize, const char *
     return write_body(buffer, body, bodySize);
 }
 
-struct http_header* parse_single_header(char* line) {
-    struct http_header* header = (struct http_header*)malloc(sizeof(struct http_header));
+void parse_single_header(char* line, struct http_header* header) {
 
     int len = strlen(line);
     bzero(header->key, 64);
@@ -78,8 +78,6 @@ struct http_header* parse_single_header(char* line) {
     } else {
         strncpy(header->value, line+d+1, strlen(line+d+1));
     }
-
-    return header;
 }
 
 /*
@@ -96,11 +94,15 @@ struct request_message* parse_request(char* requestBuffer) {
     strcpy(temp, requestBuffer+strlen(startLine)+1);
     message->startLine = parse_start_line_of_request(startLine);
 
+    message->headers = malloc(sizeof(struct http_header));
+    initHeaderArray(message->headers);
+
     ptr = strtok(temp, CRLF);
 
-    // TODO: 파싱한 헤더를 저장할 자료구조 고안
     while(ptr != NULL) { // Continue parsing
-        parse_single_header(ptr);
+        struct http_header header;
+        parse_single_header(ptr, &header);
+        pushHeader(message->headers, header.key, header.value);
         ptr = strtok(NULL, CRLF);
     }
 

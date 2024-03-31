@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
             error("ERROR reading from socket");
 
         // Print request message
-        printf("incoming message: \n%s\n", buffer);
+        printf("incoming message:\n%s", buffer);
 
         // Parse request
         struct request_message* request = parse_request(buffer);
@@ -98,7 +98,12 @@ int main(int argc, char *argv[])
         // Get request uri for routing
         char* request_uri = request->startLine->uri;
 
-        printf("uri: %s\n", request_uri);
+        // Show Parsing result
+        printf("parsing message: \n");
+        printf("%s %s %s\n", request->startLine->method, request->startLine->uri, request->startLine->version);
+        printAllHeader(request->headers);
+        printf("\n");
+
 
         // If requested with a "/", it will send index.html file.
         if(!strcmp(request_uri, "/"))
@@ -128,6 +133,8 @@ int main(int argc, char *argv[])
         // If there is no file response we don't need to free them
         if(fileSize != -1 || contentType != NULL) {
             free(request->startLine);
+            freeHeaders(request->headers);
+            free(request->headers);
             free(request);
         }
     }

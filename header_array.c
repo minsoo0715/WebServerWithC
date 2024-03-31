@@ -18,7 +18,7 @@ void freeHeaders(struct http_header_array* array) {
 }
 
 /* add new header into http_header_array */
-int pushHeader(struct http_header_array* array, const char* key, const char* value) {
+void pushHeader(struct http_header_array* array, const char* key, const char* value) {
     if(array->cap == array->n) { // if headers is full
         array->cap *= 2;         // increase capacity by twice
         // reallocate array

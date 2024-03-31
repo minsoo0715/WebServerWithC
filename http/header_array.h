@@ -13,7 +13,7 @@ struct http_header_array {
 
 void initHeaderArray(struct http_header_array* array);
 void freeHeaders(struct http_header_array* array);
-int pushHeader(struct http_header_array* array, const char* key, const char* value);
+void pushHeader(struct http_header_array* array, const char* key, const char* value);
 const char* getHeaderValue(struct http_header_array* array, const char* findKey);
 void printAllHeader(struct http_header_array* array);
 

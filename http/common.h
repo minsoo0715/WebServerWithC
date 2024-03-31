@@ -2,10 +2,12 @@
 #ifndef __HTTP__COMMON_H__
 #define __HTTP__COMMON_H__
 
+/* something about HTTP Message */
 #define HTTP_VERSION "HTTP/1.1"
 #define HTTP_STATUS_TEXT_404 "NOT FOUND"
 #define HTTP_STATUS_TEXT_200 "OK"
 
+/* All supported mimetypes */
 #define TEXT_HTML "text/html"
 #define TEXT_PLAIN "text/plain"
 #define FAVICON "image/vnd.microsoft.icon"

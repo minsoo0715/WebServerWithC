@@ -115,33 +115,40 @@ int main(int argc, char *argv[])
         fileSize = load_file(request_uri, &fileBuffer);
 
 
-        struct http_header_array responseHeaders;
+        struct http_header_array responseHeaders; // Header array to include in an HTTP message
+        initHeaderArray(&responseHeaders);  // initialize it
 
-        initHeaderArray(&responseHeaders);
-
+        // Server header represent a name of the software or the product that handled the request.
         pushHeader(&responseHeaders, "Server", "gcc version 11.4.0 (Ubuntu 11.4.0-1ubuntu1~22.04)");
+        // "Cache-Control" header is for describing caching policy, in this application, we do not use caching (no-store)
         pushHeader(&responseHeaders, "Cache-Control", "no-store");
+        // "Access-Control-Allow-Origin" header is for describing CORS policy.
         pushHeader(&responseHeaders, "Access-Control-Allow-Origin", "*");
 
+        // Include "Content-Language" only if it's a text file
         if(strcmp(contentType, IMAGE_JPEG) && strcmp(contentType, GIF) && strcmp(contentType, MP3) && strcmp(contentType, FAVICON)) {
+            // "Content-Language" header represents a language of content
             pushHeader(&responseHeaders, "Content-Language", "ko,en");
         }
 
-        struct response_start_line start_line;
+        struct response_start_line start_line; // to save start_line information
 
         // If there is no file or can't detect contentType, return 404 response
-        if(contentType == NULL || fileSize == -1) {
-            fileSize = load_str("The page you requested could not be found", &fileBuffer);
-            contentType = TEXT_PLAIN;
-            get_start_line_by_status(&start_line, 404);
+        if(contentType == NULL || fileSize == -1) { // if there is no file
+            fileSize = load_str("The page you requested could not be found", &fileBuffer); // load error message to fileBuffer
+            contentType = TEXT_PLAIN;                             // error message's contentType is text/plain
+            get_start_line_by_status(&start_line, 404); // get start_line by status_code 404
         } else { // Generate response by several parameters
-            get_start_line_by_status(&start_line, 200);
+            get_start_line_by_status(&start_line, 200); // get start_line by status_code 200
         }
 
+        // The "Content-Type" representation header is used to indicate the original media type of the resource
         pushHeader(&responseHeaders, "Content-Type", contentType);
 
         char temp[10];
-        snprintf(temp, 9, "%d", fileSize);
+        snprintf(temp, 9, "%d", fileSize); // convert integer to string
+
+        // The "Content-Length" representation header is used to indicate the length of the resource
         pushHeader(&responseHeaders, "Content-Length", temp);
 
         bodySize = generate_response(responseBuffer, fileBuffer, fileSize, &responseHeaders, &start_line);
@@ -154,6 +161,7 @@ int main(int argc, char *argv[])
         // Close connection with client
         close(newsockfd);
 
+        /* deallocate some buffers */
         free(request->startLine);
         freeHeaders(request->headers);
         free(request->headers);

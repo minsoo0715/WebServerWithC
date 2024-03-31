@@ -1,12 +1,11 @@
 /*
  * Header defining structures, functions about http message
- * (especially parsing)
  */
 
 #ifndef __HTTP__MESSAGE_H__
 #define __HTTP__MESSAGE_H__
 
-#include "header.h"
+#include "header_array.h"
 
 /* Structure for saving request start_line attributes */
 struct request_start_line {
@@ -22,6 +21,7 @@ struct response_start_line {
     char status_text[16];
 };
 
+/* Define http header */
 struct http_header {
     char key[64];
     char value[512];

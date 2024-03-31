@@ -37,28 +37,33 @@ const char* get_contentType(char* fileName) {
 int load_file(const char * fileName, char** fileBuffer)
 {
     int fileSize;
-    char* path = (char*)malloc(200); // Temporal variable for file's path
+    char* path = (char*)malloc(200); // temporal variable for file's path
     bzero(path, 200);
 
     strcat(path, RESOURCE_ROOT);
     strcat(path, fileName);
 
-    FILE *fp = fopen(path, "rb"); // Read file with readonly, binary mode
+    FILE *fp = fopen(path, "rb"); // read file with readonly, binary mode
     if(fp == NULL) {
         return -1;
     }
 
-    fseek(fp, 0L, SEEK_END);   // Move cursor to end of file
-    fileSize = ftell(fp);                 // Get fileSize
-    *fileBuffer = (char*)malloc(fileSize);  // Allocate fileBuffer with fileSize
-    fseek(fp, 0L, SEEK_SET);   // Move cursor to start of file
+    fseek(fp, 0L, SEEK_END);             // move cursor to end of file
+    fileSize = ftell(fp);                           // get fileSize
+    *fileBuffer = (char*)malloc(fileSize);            // allocate fileBuffer with fileSize
+    fseek(fp, 0L, SEEK_SET);             // move cursor to start of file
     fread(*fileBuffer, fileSize, 1, fp); // read file
 
-    fclose(fp); // Close fp
-    free(path);    // Deallocate path
-    return fileSize;  // Return fileSize
+    fclose(fp); // close fp
+    free(path);    // deallocate path
+    return fileSize;  // return fileSize
 }
 
+/*
+ * Copy string to fileBuffer
+ * first, allocate fileBuffer, and copy string to it
+ * finally, return length of fileBuffer
+*/
 int load_str(const char * contents, char** fileBuffer) {
     int len = strlen(contents);
     *fileBuffer = (char*) malloc(len);

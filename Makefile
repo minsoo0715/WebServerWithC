@@ -1,4 +1,4 @@
-main.o : server.o error.o header_array.o http_message.o util.o socket.o
+all : server.o error.o header_array.o http_message.o util.o socket.o
 	gcc -o main.o error.o server.o header_array.o http_message.o util.o socket.o
 
 error.o : error.c

@@ -71,3 +71,10 @@ int load_str(const char * contents, char** fileBuffer) {
     return len;
 }
 
+void to_lower_case(char* buffer, int size) {
+    for(int i = 0; i<size; ++i) {
+        if('A' <= buffer[i] && 'Z' >= buffer[i]) {
+            buffer[i] += 'a' - 'A';
+        }
+    }
+}

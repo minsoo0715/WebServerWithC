@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "common/constant.h"
+#include "common/util.h"
 #include "http/common.h"
 #include "http/header_array.h"
 #include "http/message.h"
@@ -109,6 +110,8 @@ void parse_single_header(char* line, struct http_header* header) {
     if(d == -1 || d == 0 || d == len-1) return;
 
     strncpy(header->key, line, d); // key range is 0~(d-1) (length: d)
+    to_lower_case(header->key, d);
+
     if(line[d+1] == ' ') { // if it has ' '
         strncpy(header->value, line+d+2, strlen(line+d+1)); // then, copy rest of the string, except ': '
     } else {

@@ -13,6 +13,6 @@ $ make
 
 ### Run
 ```bash
-$ ./main.o {portNumber}
-$ make && ./main.o {portNumber} # With build
+$ ./myserver {portNumber}
+$ make && ./myserver {portNumber} # With build
 ```

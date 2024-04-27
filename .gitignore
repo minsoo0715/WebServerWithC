@@ -1,4 +1,5 @@
 *.o
+myserver
 .vscode
 .idea
 .DS_Store

@@ -14,7 +14,7 @@ const char* get_contentType(char* fileName) {
     if(!dot || dot == fileName) return NULL;    // if there isn't '.', return NULL
     if(strcmp(dot, ".html") == 0) {             // match file extension with mimetype
         return TEXT_HTML;
-    } else if(strcmp(dot, ".jpg") == 0) {
+    } else if(strcmp(dot, ".jpg") == 0 || strcmp(dot, ".jpeg") == 0) {
         return IMAGE_JPEG;
     } else if(strcmp(dot, ".ico") == 0) {
         return FAVICON;

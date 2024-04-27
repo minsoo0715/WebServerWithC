@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
         pushHeader(&responseHeaders, "Access-Control-Allow-Origin", "*");
 
         // Include "Content-Language" only if it's a text file
-        if(strcmp(contentType, IMAGE_JPEG) && strcmp(contentType, GIF) && strcmp(contentType, MP3) && strcmp(contentType, FAVICON)) {
+        if(contentType != NULL && strcmp(contentType, IMAGE_JPEG) && strcmp(contentType, GIF) && strcmp(contentType, MP3) && strcmp(contentType, FAVICON)) {
             // "Content-Language" header represents a language of content
             pushHeader(&responseHeaders, "Content-Language", "ko,en");
         }
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 
         // If there is no file or can't detect contentType, return 404 response
         if(contentType == NULL || fileSize == -1) { // if there is no file
-            fileSize = load_str("The page you requested could not be found", &fileBuffer); // load error message to fileBuffer
+            fileSize = load_str("The file you requested could not be found", &fileBuffer); // load error message to fileBuffer
             contentType = TEXT_PLAIN;                             // error message's contentType is text/plain
             get_start_line_by_status(&start_line, 404); // get start_line by status_code 404
         } else { // Generate response by several parameters
